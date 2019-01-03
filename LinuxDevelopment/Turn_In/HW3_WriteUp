@@ -1,0 +1,165 @@
+Jonathan Armknecht
+CS 324 Sec 2
+Linux Development
+
+3)
+3a. The program exec.c first makes a new array character array called newenviron and sets it as NULL. It then prints out the program name of exec (which is in argv[0]), and also the process ID of the process handling exec. Then it sleeps for 30 clock cycles. During this time the processor is working on other tasks and keeps checking to see if time has ran out. If it hasn't it goes to another task, but if it has it starts up the exec process again. There is some error handling that checks to see that the argument count is greater than one. If it isn't it prints out that there is no program to exec and exits. Then it prints out that it will run an exec on argv[1]. It calls execve on the second thing in the argument vector (argv[1]) and loads in the address of argv[1] as the start of the argument vector for execve then it loads in the newenviron array of environment variables but when it was initialized earlier it just has NULL in it, so there aren't any environment variables to account for. Finally there is a final print statement that may or may not be executed (see next answer for reason why) the prints end of program.
+
+3b. The final print statement will only be printed if there is a problem with the execve call. This is because when execve is called it only returns to the calling program if it encounters an error, such as not being able to open the filename it was give in its first argument.
+
+3c. Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ ./exec /bin/cat
+Program "./exec" has pid 3682. Sleeping.
+Running exec of "/bin/cat"
+
+3d. (Ran on a Mac)
+Jonathan: ~ $ ps -p 3833 -o user,pid,ppid,state,comm
+USER       PID  PPID STAT COMM
+Jonathan  3833  3512 S+   ./exec
+Jonathan: ~ $ ps -p 3833 -o user,pid,ppid,state,comm
+USER       PID  PPID STAT COMM
+Jonathan  3833  3512 S+   /bin/cat
+
+3e. They both had a parent ID that belonged to the bash console. Other things shared were the user, me, the process ID and the state S+ meaning the process is sleeping for less than 20 seconds and that the process is in the foreground process group of its control terminal. The difference was what command was being executed. While sleeping it was still the ./exec that started the whole process, but that changed to /bin/cat after the sleep. This is because /bin/cat was passed into execve as the executable object file. It was loaded and ran as a new program.
+The things that were similiar is because of how the execve function works. This function loads and runs a new program in the same process as the program that called execve. That means they share the same PID as well as the same PPID. It overwrites the address space of the current process but it does not create a new process. The new program opened by execve still has the same PID, as mentioned above, and it inherits all of the file descriptors that were open at the time of the call to execve. Since the ./exec was ran by me the program opened by the execve function inside ./exec will also be ran by me. The state will be the same as well since it is still the same process. No new processes are made with an execve call. The differences occured in what command was being executed. The first command was the program ./exec but once execve was called within the ./exec program the /bin/cat program was loaded and ran by execve and was the new program running. Hence, the new command being printed out.
+
+3f. Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ ./exec hello
+Program "./exec" has pid 4079. Sleeping.
+Running exec of "hello"
+End of program "./exec".
+The print statement was ran because when execve tried to load and run hello there was no filename by that name so it returned to ./exec and ran the print statement. This is because when execve is called it only returns to the calling program if it encounters an error, such as not being able to open the filename it was give in its first argument.
+
+4)
+4a. The program first prints out its PID. Then it calls fork(). Fork returns 0 to the child process and returns the PID of the child to the parent process. This is why it is checked to see that the PID is greater than 0. If it isn't then a problem happend trying to fork and the program terminates. Section A is printed by both the child and the parent process. The only difference here is that the PIDs will be different since one process is going on in the child and the other in the parent. If the pid from the fork was 0 then it means we are in the child process. Thus, the child process will print Section B. While the parent process will print Section C. Noone will print Section D since both the parent and the child process exited before then.
+
+4b. These sections will be ran by the child process: Sections A and B. These sections will be ran by the parent process: Sections A and C.
+
+4c. I ran everything on my Mac up to this point but there was no good command for --forest. pstree (for Mac) didn't print out the states correctly so I ssh'd into the dept. computers for this question.
+@parthenon:~/CS324$ ./fork
+Starting program; process has pid 10316
+Section A;  pid 10316
+Section A;  pid 10317
+Section C
+Section B
+Section B done sleeping
+Section C done sleeping
+@parthenon:~$ ps --forest -p 10316,10317 -o user,pid,ppid,state,ucmd
+USER       PID  PPID S CMD
+ 10316  9616 S fork
+ 10317 10316 S  \_ fork
+@parthenon:~$ ps --forest -p 10316,10317 -o user,pid,ppid,state,ucmd
+USER       PID  PPID S CMD
+ 10316  9616 S fork
+ 10317 10316 Z  \_ fork <defunct>
+
+4d. The things that both outputs have in common are that they were both ran by me (). The PID for the parent process (10316) stays the same throughout as well as the PID for the child process (10317). This is because the process isn't deleted for either of them until 1 of 2 things happen: the child is reaped (child process deleted) or the parent process comes to an end (parent process is deleted and the child is reaped by the init process). The PPID for the parent process stays the same (9616) which is the process for the bash terminal. And the PPID for the child stays the same throughout (10316) which is the process ID of the parent. The fork command in the parent is still running in a sleep state in both since the program hasn't come to an end yet, but what is different is that the child process ends and becomes a zombie because it wasn't reaped after it ended.
+
+4e. I would add it at the beginning of section C right after Section C is printed. I will also need to include the header files so it can be ran correctly. The code that I will add would be waitpid(-1, NULL, 0). This should reap the child process while the parent process is still working. As can be seen below the child fork process was reaped so no more zombie child while the parent is still running.
+@kentucky:~/CS324$ ./fork
+Starting program; process has pid 13406
+Section A;  pid 13406
+Section A;  pid 13407
+
+@kentucky:~$ ps --forest -p 13406,13407 -o user,pid,ppid,state,ucmd
+USER       PID  PPID S CMD
+ 13406 13261 S fork
+ 13407 13406 S  \_ fork
+
+Section C
+Section B
+Section B done sleeping
+
+@kentucky:~$ ps --forest -p 13406,13407 -o user,pid,ppid,state,ucmd
+USER       PID  PPID S CMD
+ 13406 13261 S fork
+
+Section C done sleeping
+
+
+4f. 
+@petra:~/CS324$ ./fork
+Starting program; process has pid 473
+Section A;  pid 473
+Section A;  pid 474
+Section C
+Section B
+Section C done sleeping
+@petra:~/CS324$ Section B done sleeping
+@petra:~$ ps --forest -p 473,474 -o user,pid,ppid,state,ucmd
+USER       PID  PPID S CMD
+   473   313 S fork
+   474   473 S  \_ fork
+@petra:~$ ps --forest -p 473,474 -o user,pid,ppid,state,ucmd
+USER       PID  PPID S CMD
+   474     1 S fork
+
+4g. The similiarities between the two outputs are as follows: The user running the processes is me in both cases. The PID of the child fork program is 474. There are more differences here though. After the parent prints Section C done sleeping the parent process (473) ends and thus the child process has no parent but is still running. It's new parent becomes the init process (a PID of 1) and this is what reaps the child when it is done sleeping/running. It isn't a zombie yet because it is still running. A zombie is a process that has ended/been terminated and hasn't been reaped yet. The second difference is that the parent process has ended and has cleaned itself up so it doesn't appear in the second ps command. This is because in the code when Section C done sleeping is printed the parent process exits and terminates.
+
+4h. Back to my Mac since no --forest is needed
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ ./fork
+Starting program; process has pid 10234
+Section A;  pid 10234
+Section C
+Section A;  pid 10235
+Section B
+Section B done sleeping
+Section C done sleeping
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ cat fork-output.txt
+BEFORE FORK
+SECTION A
+SECTION B
+SECTION A
+SECTION C
+fflush() was added in the code to flush the BEFORE FORK from the file buffer. If this was not added then it would have been added twice to the file. Once by the child process and the second time by the parent process. This is because when fork is called the parent and the child processes have the same user stack, local variable values, heap, global variable values, buffers, and the same code. So since a file is a C file pointer to a buffer created when initializing a file it is shared by both parent and child processes. Hence if it isn't flushed with fflush BEFORE FORK will be added twice.
+
+4i. As can be seen from the output of the fork-output.txt the child process writes to the file first. This can be seen through SECTION B being the third thing written. Section B is only ran by the child process so the first SECTION A must also belong to the child process. The parent process finishes up last because Section C is only ran by the parent so the second Section A also belongs to the parent. So, the child writes first to the file followed by the parent process.
+
+4j.
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ ./fork
+Starting program; process has pid 10467
+Section A;  pid 10467
+Section C
+Section A;  pid 10468
+Section B
+Section B done sleeping
+hello from Section B
+Section C done sleeping
+As can be seen from the output the prints the hello from section B only after the child process is done. This is because I read from the pipe after calling my waitpid function. This ensures that the child has written to the pipe before it is read from.
+
+5)
+
+5a.
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ echo foobar | ./fork /bin/cat
+Starting program; process has pid 10531
+Section A;  pid 10531
+Section C
+Section A;  pid 10532
+Section B
+Section B done sleeping
+Program "./fork" has pid 10532. Sleeping.
+Running exec of "/bin/cat"
+foobar
+hello from Section B
+Section C done sleeping
+The echo runs foobar as the argument for the cat program that was ran by execve() function that was ran by the child procress made from the fork() call.
+
+5b.
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ echo foobar | ./fork /bin/cat
+Starting program; process has pid 10770
+Section A;  pid 10770
+Section C
+Section A;  pid 10771
+Section B
+Section B done sleeping
+hello from Section B
+Section C done sleeping
+
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/LinuxDevelopment/hw3 $ cat fork-output.txt 
+BEFORE FORK
+SECTION A
+SECTION B
+Program "./fork" has pid 10771. Sleeping.
+Running exec of "/bin/cat"
+foobar
+SECTION A
+SECTION C
+I added dup2(fileno(fp), STDOUT_FILENO); this makes it so that anything that would have been written to stdout in the child process after this will be saved to the file instead. Which is what happened correctly.

@@ -1,0 +1,93 @@
+Jonathan Armknecht
+CS 324 Sec 2
+Slowcat Tests
+
+Test 1
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ ./slowcat test.txt
+Process ID: 4346
+AAA
+BBB
+CCC
+DDD
+EEE
+
+Test 2
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ cat test.txt | ./slowcat
+Process ID: 4352
+AAA
+BBB
+CCC
+DDD
+EEE
+
+Test 3
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ export SLOWCAT_SLEEP_TIME="5"
+
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ printenv | grep SLOWCAT
+SLOWCAT_SLEEP_TIME=5
+
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ ./slowcat test.txt
+Process ID: 4364
+AAA
+BBB
+CCC
+DDD
+EEE
+
+Test 4
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ ./slowcat test.txt | ./slowcat | ./slowcat
+Process ID: 4368
+Process ID: 4370
+Process ID: 4369
+AAA
+BBB
+CCC
+DDD
+EEE
+
+Test 5
+
+5a
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ ./slowcat test.txt
+Process ID: 4384
+AAA
+BBB
+^Z
+[1]+  Stopped                 ./slowcat test.txt
+
+5b
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ ./slowcat test.txt
+Process ID: 4389
+AAA
+BBB
+^Z
+[2]+  Stopped                 ./slowcat test.txt
+
+5c
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ jobs
+[1]-  Stopped                 ./slowcat test.txt
+[2]+  Stopped                 ./slowcat test.txt
+
+5d
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ bg %1
+[1]- ./slowcat test.txt &
+CCC
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ DDD
+EEE
+
+5e
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ fg %2
+./slowcat test.txt
+CCC
+DDD
+EEE
+
+Test 6
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ ./slowcat test.txt &
+[1] 4427
+Process ID: 4427
+AAA
+Jonathan: ~/Documents/Class Documents/Grad/Fall Semester 2018/CS324/slowcat $ BBB
+CCC
+DDD
+EEE

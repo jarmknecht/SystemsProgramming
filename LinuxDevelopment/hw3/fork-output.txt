@@ -1,0 +1,8 @@
+BEFORE FORK
+SECTION A
+SECTION B
+Program "./fork" has pid 10771. Sleeping.
+Running exec of "/bin/cat"
+foobar
+SECTION A
+SECTION C

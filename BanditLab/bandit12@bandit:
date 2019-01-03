@@ -1,0 +1,69 @@
+bandit12@bandit:~$ mkdir /tmp/jonathan777 && cp data.txt /tmp/jonathan777 && cd /tmp/jonathan777 && xxd -r data.txt > datarev && mv datarev datarev.gz && gunzip datarev.gz && mv datarev datarev.bz2 && bzip2 -d datarev.bz2 && mv datarev datarev.gz && gunzip datarev.gz && mv datarev datarev.tar && tar -xvf datarev.tar && mv data5.bin data5.tar && tar -xvf data5.tar && mv data6.bin data6.bz2 && bzip2 -d data6.bz2 && mv data6 data6.tar && tar -xvf data6.tar && mv data8.bin data8.gz && gunzip data8.gz && cat data8
+data5.bin
+data6.bin
+data8.bin
+The password is 8ZjyCRiBWFYkneahHwxCv3wb2a1ORpYL
+
+
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt
+bandit12@bandit:/tmp/jonathan4$ xxd -r /tmp/jonathan4/data.txt > datarev
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  datarev
+bandit12@bandit:/tmp/jonathan4$ file datarev
+datarev: gzip compressed data, was "data2.bin", last modified: Thu Dec 28 13:34:36 2017, max compression, from Unix
+bandit12@bandit:/tmp/jonathan4$ mv datarev datarev.gz
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  datarev.gz
+bandit12@bandit:/tmp/jonathan4$ gunzip datarev.gz
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  datarev
+bandit12@bandit:/tmp/jonathan4$ file datarev
+datarev: bzip2 compressed data, block size = 900k
+bandit12@bandit:/tmp/jonathan4$ mv datarev datarev.bz2
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  datarev.bz2
+bandit12@bandit:/tmp/jonathan4$ bzip2 -d datarev.bz2
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  datarev
+bandit12@bandit:/tmp/jonathan4$ file datarev
+datarev: gzip compressed data, was "data4.bin", last modified: Thu Dec 28 13:34:36 2017, max compression, from Unix
+bandit12@bandit:/tmp/jonathan4$ mv datarev datarev.gz
+bandit12@bandit:/tmp/jonathan4$ gunzip datarev.gz
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  datarev
+bandit12@bandit:/tmp/jonathan4$ find datarev
+datarev
+bandit12@bandit:/tmp/jonathan4$ file datarev
+datarev: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/jonathan4$ mv datarev datarev.tar
+bandit12@bandit:/tmp/jonathan4$ tar -xvf datarev.tar
+data5.bin
+bandit12@bandit:/tmp/jonathan4$ file data5.bin  
+data5.bin: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/jonathan4$ mv data5.bin data5.tar
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  data5.tar  datarev.tar
+bandit12@bandit:/tmp/jonathan4$ tar -xvf data5.tar 
+data6.bin
+bandit12@bandit:/tmp/jonathan4$ file data6.bin 
+data6.bin: bzip2 compressed data, block size = 900k
+bandit12@bandit:/tmp/jonathan4$ mv data6.bin data6.bz2
+bandit12@bandit:/tmp/jonathan4$ bzip2 -d data6.bz2
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  data5.tar  data6  datarev.tar
+bandit12@bandit:/tmp/jonathan4$ file data6
+data6: POSIX tar archive (GNU)
+bandit12@bandit:/tmp/jonathan4$ mv data6 data6.tar
+bandit12@bandit:/tmp/jonathan4$ tar -xvf data6.tar
+data8.bin
+bandit12@bandit:/tmp/jonathan4$ file data8.bin
+data8.bin: gzip compressed data, was "data9.bin", last modified: Thu Dec 28 13:34:36 2017, max compression, from Unix
+bandit12@bandit:/tmp/jonathan4$ mv data8.bin data8.gz
+bandit12@bandit:/tmp/jonathan4$ gunzip data8.gz
+bandit12@bandit:/tmp/jonathan4$ ls
+data.txt  data5.tar  data6.tar  data8  datarev.tar
+bandit12@bandit:/tmp/jonathan4$ file data8
+data8: ASCII text
+bandit12@bandit:/tmp/jonathan4$ cat data8
+The password is 8ZjyCRiBWFYkneahHwxCv3wb2a1ORpYL
